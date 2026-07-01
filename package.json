@@ -1,0 +1,20 @@
+{
+  "name": "astrotalk-clone-using-mern",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "client": "npm --workspace client run dev -- --host 127.0.0.1",
+    "server": "npm --workspace server run dev",
+    "build": "npm --workspace client run build",
+    "start": "npm --workspace server start"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
