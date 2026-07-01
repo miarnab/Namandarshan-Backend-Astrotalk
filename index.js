@@ -18,7 +18,7 @@ import paymentRoutes from "./routes/payments.js";
 // import toolRoutes from "./routes/tools.js";
 
 dotenv.config();
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: "./.env" });
 
 const app = express();
 const readCliValue = (name) => {
