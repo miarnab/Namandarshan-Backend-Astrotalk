@@ -1,1 +1,1 @@
-# Namandarshan-Backend-Astrotalk
+# Namandarshan-Astrotalk-Backend
