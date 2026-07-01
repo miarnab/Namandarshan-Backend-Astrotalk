@@ -34,7 +34,7 @@ const readCliValue = (name) => {
   return "";
 };
 const port = readCliValue("port") || process.env.PORT || 5000;
-const host = readCliValue("host") || process.env.HOST || "127.0.0.1";
+const host = readCliValue("host") || process.env.HOST || "0.0.0.0";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDistPath = path.resolve(__dirname, "../../client/dist");
 
