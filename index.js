@@ -21,7 +21,20 @@ dotenv.config();
 dotenv.config({ path: "../.env" });
 
 const app = express();
-const port = process.env.PORT || 5000;
+const readCliValue = (name) => {
+  const longFlag = `--${name}`;
+  const inlineFlag = `${longFlag}=`;
+  const inlineValue = process.argv.find((arg) => arg.startsWith(inlineFlag));
+
+  if (inlineValue) return inlineValue.slice(inlineFlag.length);
+
+  const flagIndex = process.argv.indexOf(longFlag);
+  if (flagIndex >= 0) return process.argv[flagIndex + 1];
+
+  return "";
+};
+const port = readCliValue("port") || process.env.PORT || 5000;
+const host = readCliValue("host") || process.env.HOST || "127.0.0.1";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDistPath = path.resolve(__dirname, "../../client/dist");
 
@@ -31,20 +44,6 @@ app.use(morgan("dev"));
 
 app.locals.mongoReady = await connectDB();
 
-// if (app.locals.mongoReady) {
-//   const [astrologerCleanup, userCleanup, bookingCleanup] = await Promise.all([
-//     Astrologer.deleteMany({ id: { $in: knownSeedData.astrologerIds } }),
-//     User.deleteMany({ email: { $in: knownSeedData.userEmails } }),
-//     Consultation.deleteMany({ bookingId: { $in: knownSeedData.bookingIds } })
-//   ]);
-//   const removedCount =
-//     astrologerCleanup.deletedCount + userCleanup.deletedCount + bookingCleanup.deletedCount;
-
-//   if (removedCount > 0) {
-//     console.log(`Removed ${removedCount} old seeded record${removedCount === 1 ? "" : "s"}.`);
-//   }
-// }
-
 app.post("/api/auth/signin", signIn);
 app.use("/api", catalogRoutes);
 app.use("/api/auth", authRoutes);
@@ -53,13 +52,26 @@ app.use("/api/panels", panelRoutes);
 app.use("/api/payments", paymentRoutes);
 // app.use("/api/tools", toolRoutes);
 
-// app.get("/", (_req, res) => {
-//   res.json({
-//     message: "API server is running",
-//     health: "/api/health",
-//     basePath: "/api"
-//   });
-// });
+const apiInfo = {
+  message: "Namandarshan Astrotalk API server is running",
+  health: "/api/health",
+  basePath: "/api",
+  endpoints: {
+    catalog: ["/api/stats", "/api/astrologers", "/api/filters"],
+    auth: ["/api/auth/register", "/api/auth/signin", "/api/auth/profile"],
+    panels: ["/api/panels/user", "/api/panels/admin", "/api/panels/astrologer"],
+    consultations: ["/api/consultations", "/api/consultations/:bookingId/session"],
+    payments: ["/api/payments/wallet/recharge", "/api/payments/verify"]
+  }
+};
+
+app.get("/", (_req, res) => {
+  res.json(apiInfo);
+});
+
+app.get("/api", (_req, res) => {
+  res.json(apiInfo);
+});
 
 if (existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath));
@@ -80,6 +92,6 @@ app.use((error, _req, res, _next) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`API listening on http://127.0.0.1:${port}`);
+app.listen(port, host, () => {
+  console.log(`API listening on http://${host}:${port}`);
 });
